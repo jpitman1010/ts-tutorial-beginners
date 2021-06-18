@@ -1,0 +1,254 @@
+
+
+typescript gives errors with commented out notes in code.  
+
+// function foo(bar) {
+//     return "Hello, " + bar;
+// }
+// let baz = "ABC";
+// console.log(foo(baz));
+// //used tsc foo.ts and it will be the compiler for foo.ts (it
+// // will create a js3 compatable copy of file)
+// _________________________________________________________________________________________
+// Type Annotations:
+// Parameter 'bar' implicitly has an 'any' type, 
+// but a better type may be inferred from usage.ts(7044),
+// so in order to fix this error, you must pass in a type.
+//the 3 dots under bar in example above showed this error.  If you pass a type with the variable, 
+//it will specify which variable must be passed and only allow that variable:
+
+
+function foo(bar) {
+    return "Hello, " + bar;
+}
+//var baz = "ABC";
+
+//console.log(foo(baz));
+
+//in order to get the error for  baz to go away, must assign it to a type as well:
+var baz: string = "ABC
+console.log(foo(baz));
+
+
+
+by adding ? to variable before declairing it's type, this can 
+allow you to pass through no variables.
+
+function foo(bar) {
+    return "Hello, " + bar;
+}
+var baz: string = "ABC";
+
+console.log(foo(baz));
+
+
+_________________________________________________________________________________________
+want to call an array of numbers?
+
+function foo(bar?: number[]) {
+    return "Hello, " + bar;
+}
+
+let baz: number[] = [1, 2, 3];
+
+
+
+console.log(foo());
+console.log(foo(baz));
+
+_________________________________________________________________________________________
+
+can require value be one specific variable or another:
+
+
+function foo(bar: "car" | "bus" | number) {
+    return "Hello, " + bar;
+}
+var baz: string = "ABC";
+
+console.log(foo(baz));
+
+
+_________________________________________________________________________________________
+Interfaces and types:
+
+primitive types: string, number, boolean, undefined, void
+custom types: any word you define can be one, it should have 2 properties
+//wihtout writing export{}; at top of page, I was getting an error saying :
+//Cannot redeclare block-scoped variable 'baz'.ts(2451)
+//as well as stating that foo was already declaired on the js file.
+//because there were no high level import/export statements, it gave global declaration
+//error like that. So to fix, and to customize what you want to pass through:
+
+export {};
+
+interface Someword {
+    word: string
+    number: number
+    numArray: number[]
+    strArray: string[]
+}
+
+function foo(bar: Someword) {
+    return "Hello, " + bar;
+}
+
+let baz = { word: "abc", number: 123, numArray: [1, 2, 3], strArray: ['1', '2', '3'] }
+
+
+console.log(foo(baz));
+
+//then to compile the code, run tsc foo.ts in terminal
+//then run in node to see output: node foo.ts
+//results in Hello, [object Object]
+
+//this is because bar is now an objeect, so yuou need to call it like an object
+//within the function like this:
+
+export {};
+
+interface Someword {
+    word: string
+    number: number
+    numArray: number[]
+    strArray: string[]
+}
+
+function foo(bar: Someword) {
+    return "Hello, " + bar.word + ' ' + bar.number + ' ' + bar.numArray + ' ' + bar.strArray;
+}
+
+let baz = { word: "abc", number: 123, numArray: [1, 2, 3], strArray: ['1', '2', '3'] }
+
+
+console.log(foo(baz));
+
+//then to compile the code, run tsc foo.ts in terminal
+//then run in node to see output: node foo.ts
+//then output becomes as desired:  Hello, abc 123 1,2,3 1,2,3
+
+
+
+can also define as a type instead of calling the custom type an Interface
+//but also have to add  = before object creation:
+
+export {};
+
+type Someword = {
+    word: string
+    number: number
+    numArray: number[]
+    strArray: string[]
+}
+
+function foo(bar: Someword) {
+    return "Hello, " + bar.word + ' ' + bar.number + ' ' + bar.numArray + ' ' + bar.strArray;
+}
+
+let baz = { word: "abc", number: 123, numArray: [1, 2, 3], strArray: ['1', '2', '3'] }
+
+
+console.log(foo(baz));
+
+
+
+//difference of type and interface is: 
+-type will allow when you hover over the variable declaration within the function,
+it will show the entire objecet when using type, and when using interface it will only
+show you the interface name.  
+
+-you can also do a merge by declaring each part of the object separately using the same 
+declaration:
+YOU CANNOT merge a type!!  Only an interface can be merged. gives error: duplicate identifier
+
+export {};
+
+interface Someword {
+    word: string
+    
+}
+interface Someword  {
+    number: number
+}
+interface Someword  {
+    numArray: number[]
+}
+interface Someword {
+    
+    strArray: string[]
+}
+
+function foo(bar: Someword) {
+    return "Hello, " + bar.word + ' ' + bar.number + ' ' + bar.numArray + ' ' + bar.strArray;
+}
+
+let baz = { word: "abc", number: 123, numArray: [1, 2, 3], strArray: ['1', '2', '3'] }
+
+console.log(foo(baz));
+
+
+
+
+
+_________________________________________________________________________________________
+
+Classes:
+
+//you can create a new class to use the interface plus a primitive (or without primitive or all primitives)
+//to access private parts of class, 
+-set it to private within the class
+-add a constructor
+-add a public that returns what you want from the private
+-using this, refers to the class objeect.
+
+export {};
+
+class AClassName {
+    private somethingPrivate: string
+
+    constructor(someWord: Someword, aMadeUpNumber: number, aMadeUpNumberArray: number[], aMadeUpStringArray: string[]){ 
+        this.somethingPrivate = someWord.word + ' ' + someWord.number + ' ' + someWord.numArray + ' ' + someWord.strArray;
+    }
+
+    public getAClassName(){
+        return this.somethingPrivate
+    }
+}
+
+interface Someword {
+    word: string;
+    number: number;
+    numArray: number[];
+    strArray: string[];
+}
+
+function foo(bar: Someword) {
+    return "Hello, " + bar.word + ' ' + bar.number + ' ' + bar.numArray + ' ' + bar.strArray;
+}
+
+let baz = { word: "abc", number: 123, numArray: [1, 2, 3], strArray: ['1', '2', '3'] }
+let fred: AClassName = new AClassName(baz, 1, [2, 3, 4], ['5', '6', '7'])
+
+console.log(fred.getAClassName());
+
+
+//output is :  abc 123 1,2,3 1,2,3
+
+
+_________________________________________________________________________________________
+
+Running JS in the browser:
+
+add html file
+
+add script tags for JS file (not tsx file!!)
+    <script src="foo.js"></script>
+
+then go to ts file and add at bottom:
+
+document.body.innerHTML = fred.getAClassName(); 
+
+//have to remove exports{} from code when running in HTML live server.
+
+//node won't know what document.body.innterHTML is but the browser will
+//open with browser by going to html file and right click and "Open with Live Server"
